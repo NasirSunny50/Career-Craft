@@ -226,7 +226,7 @@ class _SectionManager extends StatelessWidget {
   ) async {
     final defaultTitle = kDefaultSectionTitles[kind] ??
         (kind == ResumeSectionKind.custom ? 'Custom section' : kind.name);
-    final ctrl = TextEditingController();
+    var title = '';
     await showDialog<void>(
       context: context,
       builder: (dialogCtx) {
@@ -235,17 +235,17 @@ class _SectionManager extends StatelessWidget {
             'Section Title',
             style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
           ),
-          content: TextField(
-            controller: ctrl,
+          content: TextFormField(
+            initialValue: '',
             autofocus: true,
             decoration: InputDecoration(
               labelText: 'Shows on your CV',
               hintText: defaultTitle,
             ),
-            onSubmitted: (_) {
-              final t = ctrl.text.trim();
+            onChanged: (v) => title = v,
+            onFieldSubmitted: (_) {
               Navigator.pop(dialogCtx);
-              _applyNewSection(c, kind, t);
+              _applyNewSection(c, kind, title.trim());
             },
           ),
           actions: [
@@ -262,9 +262,8 @@ class _SectionManager extends StatelessWidget {
             ),
             FilledButton(
               onPressed: () {
-                final t = ctrl.text.trim();
                 Navigator.pop(dialogCtx);
-                _applyNewSection(c, kind, t);
+                _applyNewSection(c, kind, title.trim());
               },
               child: const Text('Add'),
             ),
@@ -272,7 +271,6 @@ class _SectionManager extends StatelessWidget {
         );
       },
     );
-    ctrl.dispose();
   }
 
   static void _applyNewSection(CvController c, ResumeSectionKind kind, String title) {
@@ -349,7 +347,7 @@ class _SectionFormBlock extends StatelessWidget {
   ) async {
     final defaultTitle = kDefaultSectionTitles[slot.kind] ??
         (slot.kind == ResumeSectionKind.custom ? 'Custom' : 'Section');
-    final ctrl = TextEditingController(text: slot.titleOverride);
+    var title = slot.titleOverride;
     await showDialog<void>(
       context: context,
       builder: (dialogCtx) {
@@ -358,15 +356,16 @@ class _SectionFormBlock extends StatelessWidget {
             'Rename Section',
             style: GoogleFonts.plusJakartaSans(fontWeight: FontWeight.w800),
           ),
-          content: TextField(
-            controller: ctrl,
+          content: TextFormField(
+            initialValue: slot.titleOverride,
             autofocus: true,
             decoration: InputDecoration(
               labelText: 'Heading on your CV',
               hintText: defaultTitle,
             ),
-            onSubmitted: (_) {
-              c.setSectionTitle(slot.id, ctrl.text.trim());
+            onChanged: (v) => title = v,
+            onFieldSubmitted: (_) {
+              c.setSectionTitle(slot.id, title.trim());
               Navigator.pop(dialogCtx);
             },
           ),
@@ -384,7 +383,7 @@ class _SectionFormBlock extends StatelessWidget {
             ),
             FilledButton(
               onPressed: () {
-                c.setSectionTitle(slot.id, ctrl.text.trim());
+                c.setSectionTitle(slot.id, title.trim());
                 Navigator.pop(dialogCtx);
               },
               child: const Text('Save'),
@@ -393,7 +392,6 @@ class _SectionFormBlock extends StatelessWidget {
         );
       },
     );
-    ctrl.dispose();
   }
 
   @override
